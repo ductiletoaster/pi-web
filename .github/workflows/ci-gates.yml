@@ -1,0 +1,28 @@
+---
+# Security gate floor via the shared harmony-ci actions, on the self-hosted
+# pi-web ARC runner (harmony-arc-runner image; baked tools). Actions pinned by
+# SHA. Layers on top of the existing ci.yml / publish.yml.
+# NOT here: osv-scanner (deferred — runner offline OSV DB lacks npm, harmony#1118);
+# hadolint (no Dockerfiles); ruff/lint (Node repo, owned).
+name: CI Gates
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  gitleaks:
+    name: gitleaks (secret scan)
+    runs-on: pi-web
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - uses: ductiletoaster/harmony-ci/actions/gitleaks@47af013018c07e12803ea3268698cba6a3f3e645
+  semgrep:
+    name: semgrep (SAST)
+    runs-on: pi-web
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: ductiletoaster/harmony-ci/actions/semgrep@47af013018c07e12803ea3268698cba6a3f3e645
